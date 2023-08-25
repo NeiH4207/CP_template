@@ -1,0 +1,23 @@
+void discretize(long long *arr, int n){
+    vector<long long> xs(n);
+    for(int i = 0; i < n; i++){
+        xs[i] = arr[i];
+    }
+    sort(xs.begin(), xs.end());
+    xs.resize(unique(xs.begin(), xs.end()) - xs.begin());
+    for(int i = 0; i < n; i++){
+        arr[i] = lower_bound(xs.begin(), xs.end(), arr[i]) - xs.begin();
+    }
+}
+
+void discretize(vector<long long> &arr){
+    vector<long long> xs(int(arr.size()));
+    for(int i = 0; i < int(arr.size()); i++){
+        xs[i] = arr[i];
+    }
+    sort(xs.begin(), xs.end());
+    xs.resize(unique(xs.begin(), xs.end()) - xs.begin());
+    for(int i = 0; i < int(arr.size()); i++){
+        arr[i] = lower_bound(xs.begin(), xs.end(), arr[i]) - xs.begin();
+    }
+}

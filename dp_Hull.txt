@@ -1,0 +1,100 @@
+const long long LL_INF = (long long) 2e18 + 5;
+ 
+struct point {
+    long long x, y;
+ 
+    point() : x(0), y(0) {}
+ 
+    point(long long _x, long long _y) : x(_x), y(_y) {}
+};
+ 
+// dp_hull enables you to do the following two operations in amortized O(log n) time:
+// 1. Insert a pair (a_i, b_i) into the structure
+// 2. For any value of x, query the maximum value of a_i * x + b_i
+// All values a_i, b_i, and x can be positive or negative.
+struct dp_hull {
+    struct segment {
+        point p;
+        mutable point next_p;
+ 
+        segment(point _p = {0, 0}, point _next_p = {0, 0}) : p(_p), next_p(_next_p) {}
+ 
+        bool operator<(const segment &other) const {
+            // Sentinel value indicating we should binary search the set for a single x-value.
+            if (p.y == LL_INF)
+                return p.x * (other.next_p.x - other.p.x) <= other.p.y - other.next_p.y;
+ 
+            return make_pair(p.x, p.y) < make_pair(other.p.x, other.p.y);
+        }
+    };
+ 
+    set<segment> segments;
+ 
+    int size() const {
+        return segments.size();
+    }
+ 
+    set<segment>::iterator prev(set<segment>::iterator it) const {
+        return it == segments.begin() ? it : --it;
+    }
+ 
+    set<segment>::iterator next(set<segment>::iterator it) const {
+        return it == segments.end() ? it : ++it;
+    }
+ 
+    static long long floor_div(long long a, long long b) {
+        return a / b - ((a ^ b) < 0 && a % b != 0);
+    }
+ 
+    static bool bad_middle(const point &a, const point &b, const point &c) {
+        // This checks whether the x-value where b beats a comes after the x-value where c beats b. It's fine to round
+        // down here if we will only query integer x-values. (Note: plain C++ division rounds toward zero)
+        return floor_div(a.y - b.y, b.x - a.x) >= floor_div(b.y - c.y, c.x - b.x);
+    }
+ 
+    bool bad(set<segment>::iterator it) const {
+        return it != segments.begin() && next(it) != segments.end() && bad_middle(prev(it)->p, it->p, next(it)->p);
+    }
+ 
+    void insert(const point &p) {
+        set<segment>::iterator next_it = segments.lower_bound(segment(p));
+ 
+        if (next_it != segments.end() && p.x == next_it->p.x)
+            return;
+ 
+        if (next_it != segments.begin()) {
+            set<segment>::iterator prev_it = prev(next_it);
+ 
+            if (p.x == prev_it->p.x)
+                segments.erase(prev_it);
+            else if (next_it != segments.end() && bad_middle(prev_it->p, p, next_it->p))
+                return;
+        }
+ 
+        // Note we need the segment(p, p) here for the single x-value binary search.
+        set<segment>::iterator it = segments.insert(next_it, segment(p, p));
+ 
+        while (bad(prev(it)))
+            segments.erase(prev(it));
+ 
+        while (bad(next(it)))
+            segments.erase(next(it));
+ 
+        if (it != segments.begin())
+            prev(it)->next_p = it->p;
+ 
+        if (next(it) != segments.end())
+            it->next_p = next(it)->p;
+    }
+ 
+    void insert(long long a, long long b) {
+        insert(point(a, b));
+    }
+ 
+    // Queries the maximum value of ax + b.
+    long long query(long long x) const {
+        assert(size() > 0);
+        set<segment>::iterator it = segments.upper_bound(segment(point(x, LL_INF)));
+        return it->p.x * x + it->p.y;
+    }
+};

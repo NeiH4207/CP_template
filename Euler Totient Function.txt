@@ -1,0 +1,23 @@
+void PreBuild(int n = 1e6){
+   f[1] = 1;
+   for(int i = 2; i * i <= n; i++){
+      if(spr[i] == 0){
+         spr[i] = i;
+         f[i] = i - 1;
+         for(int j = i * 2; j <= n; j += i){
+            spr[j] = (j % (i * i) == 0) ? spr[j / i] * i : spr[j] = i;
+            if(spr[j] == j){
+               f[j] = j / i * (i - 1);
+            }
+         }
+      }
+   }
+}
+
+int F(int x){
+   if(f[x]){
+      return f[x];
+   } else{
+      return (spr[x] == 0) ? x - 1 : f[x] = F(spr[x]) * F(x / spr[x]);
+   }
+}

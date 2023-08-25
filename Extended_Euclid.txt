@@ -1,0 +1,27 @@
+
+// Return {x, y} | a * x + b * y = gcd(a, b)
+
+pair<long long, long long> extended_gcd(long long b, long long a) {
+   if (a == 0) return {1, 0};
+   long long r = b % a, q = b / a;
+   auto p = extended_gcd(a, b % a);
+   return {p.se, p.first - q * p.second};
+}
+
+// Return {x, y} | Min(x, y) >= 0 && a * x + b * y = c
+
+pair<long long, long long>  Get_xy(long long a, long long b, long long c){
+   long long d = __gcd(a, b);
+   auto p = extended_gcd(a, b);
+   long long x = p.first * c / d;
+   long long y = p.second * c / d;
+   int r = abs(b / d);
+   int q = abs(a / d);
+   x = (x % r + r) % r;
+   y = (c - a * x) / b;
+   if(y < 0){
+      y = (y % q + q) % q;
+      x = (c - y * b) / a;
+   }
+   return {x, y};
+}

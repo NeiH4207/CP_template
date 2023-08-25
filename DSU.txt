@@ -1,0 +1,38 @@
+struct union_find {
+    vector<int> root;
+    vector<int> sz;
+    int components = 0;
+
+    union_find(int n = -1) {
+        if (n >= 0)
+            init(n);
+    }
+
+    void init(int n) {
+        root.resize(n + 1);
+        sz.assign(n + 1, 1);
+        components = n;
+
+        for (int i = 0; i <= n; i++)
+            root[i] = i;
+    }
+
+    int find_root(int x) {
+        return x == root[x] ? x : root[x] = find_root(root[x]);
+    }
+
+    bool unite(int x, int y) {
+        x = find_root(x);
+        y = find_root(y);
+        if (x == y)
+            return false;
+
+        if (sz[x] < sz[y])
+            swap(x, y);
+
+        root[y] = x;
+        sz[x] += sz[y];
+        components--;
+        return true;
+    }
+};

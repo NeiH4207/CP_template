@@ -1,0 +1,24 @@
+struct RollingHash {
+    static const int base = 1007;
+    static const int mod = 1000000007;
+    vector<long long> hash, power;
+
+    // construct
+    RollingHash(string S) {
+        S = ' ' + S;
+        int n = (int)S.size();
+        hash.assign(n, 0);
+        power.assign(n, 1);
+        for(int i = 1; i < n; ++i) {
+            hash[i] = (hash[i - 1] * base + S[i]) % mod;
+            power[i] = (power[i - 1] * base) % mod;
+        }
+    }
+
+    // get hash of S[left:right]
+    long long Get(int l, int r) const {
+        long long res = hash[r] - hash[l - 1] * power[r - l + 1] % mod;
+        if (res < 0) res += mod;
+        return res;
+    }
+};

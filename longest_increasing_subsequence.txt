@@ -1,0 +1,18 @@
+// Finds the length of the longest subsequence of values such that compare is true for all consecutive pairs.
+template<typename T, typename T_compare>
+int longest_increasing_subsequence(vector<T> values, T_compare &&compare) {
+    vector<T> best_ending;
+ 
+    for (T value : values) {
+        auto it = lower_bound(best_ending.begin(), best_ending.end(), value, compare);
+ 
+        if (it == best_ending.end())
+            best_ending.push_back(value);
+        else
+            *it = value;
+    }
+ 
+    return int(best_ending.size());
+}
+ 
+ 

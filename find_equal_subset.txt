@@ -1,0 +1,50 @@
+ 
+const int GOAL_MAX = 250005;
+ 
+int find_equal_subsets(vector<int> &X) {
+    sort(X.begin(), X.end());
+    int n = int(X.size());
+    int sum = accumulate(X.begin(), X.end(), 0);
+ 
+    if (sum % 2 != 0)
+        return -1;
+ 
+    int goal = sum / 2;
+    assert(goal < GOAL_MAX);
+    vector<bitset<GOAL_MAX>> dp(n + 1);
+    dp[0][0] = 1;
+ 
+    for (int i = 0; i < n; i++)
+        dp[i + 1] = dp[i] | dp[i] << X[i];
+ 
+    if (!dp[n][goal])
+        return -1;
+ 
+    int current = goal;
+    vector<bool> included(n, false);
+    int size = 0;
+ 
+    for (int i = n - 1; i >= 0; i--) {
+        assert(dp[i + 1][current]);
+ 
+        if (!dp[i][current]) {
+            current -= X[i];
+            assert(current >= 0 && dp[i][current]);
+            included[i] = true;
+            size++;
+        }
+    }
+ 
+    assert(current == 0);
+    vector<int> A, B;
+ 
+    for (int i = 0; i < n; i++)
+        if (included[i])
+            A.push_back(X[i]);
+        else
+            B.push_back(X[i]);
+ 
+    A.insert(A.end(), B.begin(), B.end());
+    X = A;
+    return size;
+}

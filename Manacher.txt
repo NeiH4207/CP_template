@@ -1,0 +1,21 @@
+// Computes the radius of the longest palindrome centered at each element in O(n) total.
+// Actual palindrome length is 2 * radius[i] - 1.
+template<typename T>
+vector<int> manacher(const T &pattern) {
+    int n = pattern.size();
+    vector<int> radius(n, 1);
+    int loc = 0;
+
+    for (int i = 1; i < n; i++) {
+        if (i < loc + radius[loc])
+            radius[i] = min(radius[loc - (i - loc)], loc + radius[loc] - i);
+
+        while (i - radius[i] >= 0 && i + radius[i] < n && pattern[i - radius[i]] == pattern[i + radius[i]])
+            radius[i]++;
+
+        if (i + radius[i] > loc + radius[loc])
+            loc = i;
+    }
+
+    return radius;
+}
